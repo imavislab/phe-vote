@@ -158,7 +158,18 @@
       <div class="content-container">
         <div 
           x-data="{ show: false }" 
-          x-init="setTimeout(() => show = true, 100)" 
+          x-init="
+            setTimeout(() => {
+              show = true;
+              // Wait for thank you animation to complete then scroll to results
+              setTimeout(() => {
+                document.querySelector('.result-container').scrollIntoView({ 
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+              }, 800); // Wait a bit longer than the animation duration (700ms)
+            }, 100)
+          " 
           :class="{ 'show': show }"
           class="thank-you-section"
         >
