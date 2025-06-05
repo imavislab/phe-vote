@@ -5,12 +5,24 @@ const { db, admin } = require("./config/firebase");
 const app = express();
 const PORT = process.env.PORT || 2000;
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.get("/", (req, res) => {
+    const poster_id = req.query.poster_id;
+    if (poster_id) {
+        res.redirect(`/vote?poster_id=${poster_id}`);
+    } else {
+        res.redirect("/vote");
+    }
+});
+
 app.get("/vote", (req, res) => {
-    const posterId = req.query.posterId;
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+    const poster_id = req.query.poster_id;
+    res.render("index", { posterId: poster_id }); // Menyesuaikan nama parameter
 });
 
 app.post("/vote", async (req, res) => {
@@ -44,12 +56,10 @@ app.post("/vote", async (req, res) => {
         console.error("Error in /vote:", error);
         return res.status(500).json({ error: "Internal Server Error" });
     }
-
-
 });
 
 app.get("/vote-result", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "vote-result.html"));
+    res.render("vote-result");
 });
 
 app.get("/posters", async (req, res) => {
@@ -62,6 +72,5 @@ app.get("/posters", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch posters" });
     }
 });
-
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
