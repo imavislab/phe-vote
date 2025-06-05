@@ -22,34 +22,133 @@
         max-width: 100%;
         margin: 0 auto;
         padding: 0;
-        padding-bottom: 150px; /* Memberikan ruang untuk footer */
+        padding-bottom: 150px;
       }
       .content-container {
         flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         width: 100%;
         padding: 1rem;
+      }
+      .thank-you-section {
+        width: 100%;
+        max-width: 768px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 2rem 1rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 700ms ease-out, transform 700ms ease-out;
+      }
+      .thank-you-section.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .thank-you-text {
         margin: 2rem 0;
+      }
+      .thank-you-img {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        margin: 0 auto;
+      }
+      .voted-poster {
+        padding: 1rem;
+        position: relative;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .pin {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: red;
+        font-size: 2rem;
+      }
+      .region-text {
+        color: #0072BC;
+        font-weight: bold;
+        font-size: 1.5rem;
+        margin-top: 1rem;
+      }
+      .zona-text {
+        color: red;
+        font-size: 1.25rem;
+      }
+      .result-container {
+        width: 100%;
+        max-width: 900px;
+        margin: 2rem auto 0;
+        padding: 1rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1000ms ease-out, transform 1000ms ease-out;
+      }
+      .result-container.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .vote-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        position: relative;
+      }
+      .poster-thumbnail {
+        width: 150px;
+        height: 150px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .poster-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .vote-bar {
+        flex: 1;
+        height: 80px;
+        background-color: #0072BC;
+        padding: 0 2rem;
+        border-radius: 0 50px 50px 0;
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
       }
       footer {
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        z-index: -1; /* Memastikan footer berada di bawah konten */
+        z-index: -1;
       }
       @media (min-width: 768px) {
         .content-container {
           padding: 2rem;
         }
       }
-      .result-container {
-        width: 100%;
-        max-width: 768px;
-        margin: 0 auto;
+      @media (max-width: 640px) {
+        .poster-thumbnail {
+          width: 120px;
+          height: 120px;
+        }
+        .vote-bar {
+          height: 60px;
+          padding: 0 1.5rem;
+          font-size: 1.5rem;
+        }
       }
     </style>
   </head>
@@ -57,9 +156,35 @@
     <%- include('partials/header') %>
     <main class="main-container">
       <div class="content-container">
-        <div class="result-container" x-data="posterList()" x-init="fetchPosters()">
-          <h1 class="text-2xl font-bold text-center mb-6">Hasil Voting Poster</h1>
+        <div 
+          x-data="{ show: false }" 
+          x-init="setTimeout(() => show = true, 100)" 
+          :class="{ 'show': show }"
+          class="thank-you-section"
+        >
+          <div class="thank-you-text">
+            <img src="/assets/images/thankyou.png" alt="Thank You" class="thank-you-img">
+          </div>
+          <div class="voted-poster">
+            <img src="/assets/images/result-vote.png">
+          </div>
+        </div>
 
+        <div 
+          x-data="{ ...posterList(), show: false }" 
+          x-init="
+            fetchPosters();
+            const observer = new IntersectionObserver(([entry]) => {
+              if (entry.isIntersecting) {
+                show = true;
+                observer.disconnect();
+              }
+            }, { threshold: 0.1 });
+            $nextTick(() => observer.observe($el))
+          "
+          :class="{ 'show': show }"
+          class="result-container"
+        >
           <template x-if="loading">
             <p class="text-center text-gray-500">Loading...</p>
           </template>
@@ -68,12 +193,16 @@
             <p class="text-center text-gray-500">Tidak ada data poster.</p>
           </template>
 
+          <!-- data semua poster -->
           <div x-show="!loading" class="space-y-4">
             <template x-for="poster in posters" :key="poster.id">
-              <div class="border p-4 rounded-lg shadow-sm bg-white">
-                <h2 class="text-xl font-semibold" x-text="poster.title"></h2>
-                <p class="text-gray-600" x-text="poster.description"></p>
-                <p class="text-blue-600 font-bold mt-2">Votes: <span x-text="poster.votes"></span></p>
+              <div class="vote-item">
+                <div class="poster-thumbnail">
+                  <img :src="'/assets/images/posters/' + poster.id + '.png'" :alt="'Poster ' + poster.id">
+                </div>
+                <div class="vote-bar">
+                  <span x-text="poster.votes + ' Vote'"></span>
+                </div>
               </div>
             </template>
           </div>
@@ -89,6 +218,7 @@
         return {
           posters: [],
           loading: true,
+          posterId: new URLSearchParams(window.location.search).get("poster_id"),
           async fetchPosters() {
             this.loading = true;
             try {
