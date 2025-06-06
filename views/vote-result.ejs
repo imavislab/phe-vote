@@ -116,16 +116,17 @@
       .vote-bar {
         /* flex: 1; */
         height: 80px;
-        min-width:80px;
+        min-width: 100px;
         background-color: #0072BC;
         padding: 0 1rem;
         border-radius: 0 50px 50px 0;
         color: white;
-        font-size: 1rem;
+        font-size: 1.2rem;
         font-weight: 600;
         display: flex;
         align-items: center;
         justify-content: flex-end;
+        transition: width 2s ease;
       }
       footer {
         position: fixed;
@@ -141,8 +142,8 @@
       }
       @media (max-width: 640px) {
         .poster-thumbnail {
-          width: 120px;
-          height: 120px;
+          width: 100px;
+          height: 100px;
         }
         .vote-bar {
           height: 60px;
@@ -187,8 +188,10 @@
                   <img :src="'/assets/images/posters/' + poster.id + '.png'" :alt="'Poster ' + poster.id">
                 </div>
                 <div 
-                  class="vote-bar" 
-                  :style="'width: ' + ((poster.votes / totalVotes) * 100 || 0) + '%'">
+                  class="vote-bar"
+                  :style="animated 
+                    ? 'width: ' + ((poster.votes / maxVotes) * 100 || 0) + '%'
+                    : 'width: 0%'">
                   <span x-text="poster.votes + ' Vote'"></span>
                 </div>
               </div>
@@ -206,8 +209,9 @@
         return {
           posters: [],
           loading: true,
-          totalVotes: 0,
-          posterId: new URLSearchParams(window.location.search).get("poster_id"),
+          maxVotes: 1,
+          animated: false,
+
           async fetchPosters() {
             this.loading = true;
             try {
@@ -215,12 +219,21 @@
               if (!res.ok) throw new Error("Failed to load posters");
               const data = await res.json();
               this.posters = data.posters;
-              let total = 0;
-              this.posters.forEach(p => total += p.votes);
-              this.totalVotes = total;
+
+              // Cari vote terbanyak
+              let max = 1;
+              this.posters.forEach(p => {
+                if (p.votes > max) max = p.votes;
+              });
+              this.maxVotes = max;
+
+              // aktifkan animasi setelah poster terload
+              setTimeout(() => { this.animated = true }, 50);
+
             } catch (error) {
               console.error("Fetch error inside Alpine:", error);
               this.posters = [];
+              this.maxVotes = 1;
             } finally {
               this.loading = false;
             }
