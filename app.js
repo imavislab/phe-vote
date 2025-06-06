@@ -58,6 +58,11 @@ app.post("/vote", async (req, res) => {
     }
 });
 
+app.get("/thanks", (req, res) => {
+    const poster_id = req.query.poster_id;
+    res.render("thanks", { posterId: poster_id });
+});
+
 app.get("/vote-result", (req, res) => {
     res.render("vote-result");
 });

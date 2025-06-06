@@ -12,3 +12,7 @@ yarn-error.log*
 
 config/serviceAccountKey.json
 serviceAccountKey.json
+
+fetch-data.js
+generate-posters.js
+generate-vouchers.js

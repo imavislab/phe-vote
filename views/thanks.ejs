@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hasil Voting Poster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: #FFF5F0;
+        position: relative;
+      }
+      .main-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0;
+      }
+      .content-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        padding: 1rem;
+      }
+      .thank-you-section {
+        width: 100%;
+        max-width: 768px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 2rem 1rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 700ms ease-out, transform 700ms ease-out;
+      }
+      .thank-you-section.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .thank-you-text {
+        margin: 2rem 0;
+      }
+      .thank-you-img {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        margin: 0 auto;
+      }
+      .voted-poster {
+        padding: 1rem;
+        position: relative;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .pin {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: red;
+        font-size: 2rem;
+      }
+      .region-text {
+        color: #0072BC;
+        font-weight: bold;
+        font-size: 1.5rem;
+        margin-top: 1rem;
+      }
+      .zona-text {
+        color: red;
+        font-size: 1.25rem;
+      }
+      .result-container {
+        width: 100%;
+        max-width: 900px;
+        margin: 2rem auto 0;
+        padding: 1rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1000ms ease-out, transform 1000ms ease-out;
+      }
+      .result-container.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .vote-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
+        position: relative;
+      }
+      .poster-thumbnail {
+        width: 150px;
+        height: 150px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .poster-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .vote-bar {
+        flex: 1;
+        height: 80px;
+        background-color: #0072BC;
+        padding: 0 2rem;
+        border-radius: 0 50px 50px 0;
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: -1;
+      }
+      .fade-out {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 500ms ease-out, transform 500ms ease-out;
+      }
+      @media (min-width: 768px) {
+        .content-container {
+          padding: 2rem;
+        }
+      }
+      @media (max-width: 640px) {
+        .poster-thumbnail {
+          width: 120px;
+          height: 120px;
+        }
+        .vote-bar {
+          height: 60px;
+          padding: 0 1.5rem;
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+    <main class="main-container">
+      <div class="content-container">
+        <div class="thank-you-section show" x-data="thanks()" x-init="init()">
+          <div class="thank-you-text">
+            <img src="/assets/images/thankyou.png" alt="Thank You" class="thank-you-img">
+          </div>
+          <div class="voted-poster">
+            <img 
+                :src="'/assets/images/posters/' + posterId + '.png'" 
+                :alt="'Poster ' + posterId"
+                class="poster-image"
+              />
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <%- include('partials/footer') %>
+    </footer>
+
+    <script>
+      function thanks(){
+        const urlParams = new URLSearchParams(window.location.search);
+        const posterId = urlParams.get("poster_id");
+
+        return {
+          posterId,
+          async redirect() {
+            try {
+              console.log("redirecting...")
+              document.querySelector(".main-container").classList.add("fade-out");
+              setTimeout(() => {
+                window.location.href = "/vote-result";
+              }, 700);
+            } catch (err) {
+              console.error("Redirect error:", err);
+            }
+          },
+          init() {
+            if (this.posterId) {
+              document.title = "Terima kasih - Poster " + this.posterId;
+            }
+            setTimeout(() => this.redirect(), 4000); // Redirect after 4s
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

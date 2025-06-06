@@ -22,7 +22,6 @@
         max-width: 100%;
         margin: 0 auto;
         padding: 0;
-        padding-bottom: 150px;
       }
       .content-container {
         flex: 1;
@@ -115,13 +114,14 @@
         object-fit: cover;
       }
       .vote-bar {
-        flex: 1;
+        /* flex: 1; */
         height: 80px;
+        min-width:80px;
         background-color: #0072BC;
-        padding: 0 2rem;
+        padding: 0 1rem;
         border-radius: 0 50px 50px 0;
         color: white;
-        font-size: 2rem;
+        font-size: 1rem;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -146,8 +146,8 @@
         }
         .vote-bar {
           height: 60px;
-          padding: 0 1.5rem;
-          font-size: 1.5rem;
+          padding: 0 1rem;
+          font-size: 1rem;
         }
       }
     </style>
@@ -156,31 +156,6 @@
     <%- include('partials/header') %>
     <main class="main-container">
       <div class="content-container">
-        <div 
-          x-data="{ show: false }" 
-          x-init="
-            setTimeout(() => {
-              show = true;
-              // Wait for thank you animation to complete then scroll to results
-              setTimeout(() => {
-                document.querySelector('.result-container').scrollIntoView({ 
-                  behavior: 'smooth',
-                  block: 'start'
-                });
-              }, 800); // Wait a bit longer than the animation duration (700ms)
-            }, 100)
-          " 
-          :class="{ 'show': show }"
-          class="thank-you-section"
-        >
-          <div class="thank-you-text">
-            <img src="/assets/images/thankyou.png" alt="Thank You" class="thank-you-img">
-          </div>
-          <div class="voted-poster">
-            <img src="/assets/images/result-vote.png">
-          </div>
-        </div>
-
         <div 
           x-data="{ ...posterList(), show: false }" 
           x-init="
@@ -211,7 +186,9 @@
                 <div class="poster-thumbnail">
                   <img :src="'/assets/images/posters/' + poster.id + '.png'" :alt="'Poster ' + poster.id">
                 </div>
-                <div class="vote-bar">
+                <div 
+                  class="vote-bar" 
+                  :style="'width: ' + ((poster.votes / totalVotes) * 100 || 0) + '%'">
                   <span x-text="poster.votes + ' Vote'"></span>
                 </div>
               </div>
@@ -229,6 +206,7 @@
         return {
           posters: [],
           loading: true,
+          totalVotes: 0,
           posterId: new URLSearchParams(window.location.search).get("poster_id"),
           async fetchPosters() {
             this.loading = true;
@@ -237,6 +215,9 @@
               if (!res.ok) throw new Error("Failed to load posters");
               const data = await res.json();
               this.posters = data.posters;
+              let total = 0;
+              this.posters.forEach(p => total += p.votes);
+              this.totalVotes = total;
             } catch (error) {
               console.error("Fetch error inside Alpine:", error);
               this.posters = [];
