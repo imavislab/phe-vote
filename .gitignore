@@ -16,3 +16,9 @@ serviceAccountKey.json
 fetch-data.js
 generate-posters.js
 generate-vouchers.js
+generate-vouchers-checked.js
+export.js
+
+difference.csv
+vouchers_export.csv
+vouchers_export1.csv
