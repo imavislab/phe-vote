@@ -47,23 +47,29 @@
         padding: 0 20px;
       }
       .poster-card {
-        width: 100%;
+        max-width: 100%;
+        height: 400px; /* <- Tentukan tinggi tetap di sini */
         margin-bottom: 2rem;
         overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        background-color: #D9D9D9;
+        /* box-shadow: 0 4px 8px rgba(0,0,0,0.1); */
+        /* background-color: #D9D9D9; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .poster-image-container {
-        padding-top: 0.5rem;
-        padding-right: 0.5rem;
-        padding-bottom: 1.5rem;
-        padding-left: 0.5rem;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .poster-image {
-        width: 100%;
-        height: auto;
-        display: block;
+        max-height: 100%;
+        max-width: 100%;
         object-fit: contain;
+        display: block;
       }
       .input-code {
         width: 100%;
@@ -127,6 +133,7 @@
         }
         .poster-card {
           border-radius: 0px;
+          height: 200px;
         }
       }
     </style>
